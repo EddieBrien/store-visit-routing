@@ -1,0 +1,23 @@
+# 输出与运行时产物
+output/
+*.pyc
+__pycache__/
+
+# 密钥与本地配置
+.env
+*.env
+!.env.example
+
+# Excel 锁文件 / 人工回填中间文件
+~$*.xlsx
+待人工标注清单.xlsx
+待人工标注清单.csv
+待补坐标清单.xlsx
+
+# 同事的输入文件（默认不跟踪，避免把门店数据带进仓库）
+*.xlsx
+*.csv
+
+# 但保留高德官方导入模板
+!assets/
+!assets/导入模板.xlsx
