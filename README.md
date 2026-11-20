@@ -1,32 +1,52 @@
 # store-visit-routing · 门店拜访排线 skill
 
-把一份门店清单（店名 + 详细地址 + 可选拜访频次）变成「精确坐标 + 5 天均衡分圈 + 带导航的排线表」。跑店从「凭经验找店」变成「照排线点导航」。
+一句话：把一份门店清单变成「精确坐标 + 5 天均衡分圈 + 带导航的排线表」。跑店从「凭经验找店」变成「照排线点导航」。
 
-## 一、安装（同事拿到这份仓库后）
+---
 
-任选其一：
+## 快速上手
+
+### 你需要准备两样东西
+
+**① 门店清单**（Excel 或 CSV，三列）
+
+| 店名 | 详细地址 | 拜访频次 |
+|---|---|---|
+| 金鹏超市(世纪路东段) | 普兰店区世纪路东段32号 | 两周一次 |
+
+- 店名、详细地址必填
+- 拜访频次选填，只写三种：**一周一次 / 两周一次 / 四周一次**（不填默认一周一次）
+
+**② 高德 key（免费）**
+
+- 打开 lbs.amap.com → 控制台 → 创建应用 → 添加 Key → 服务平台选 **「Web 服务」**
+- ⚠️ key 只自己用，别发群里、别写进 Excel
+
+### 怎么跑
+
+第一次先装一下（一次性，前提：已装 Claude Code）：
 
 ```bash
-# A. 直接 clone 到 skills 目录
-git clone <仓库地址> ~/.claude/skills/store-visit-routing
-
-# B. clone 到别处，再软链
-git clone <仓库地址> ~/store-visit-routing
-ln -s ~/store-visit-routing ~/.claude/skills/store-visit-routing
+git clone https://github.com/EddieBrien/store-visit-routing.git ~/.claude/skills/store-visit-routing
+pip3 install -r ~/.claude/skills/store-visit-routing/requirements.txt
 ```
 
-装好后，在 Claude Code 里说「帮我排线」或「门店分圈」，并给出模版文件，即可触发。
+然后跟 Claude Code 说一句 **「帮我排线」**。它会问你要三样：门店清单文件、城市和区（如 `大连市` / `普兰店区`）、高德 key。
 
-## 二、准备
+### 你会拿到三样
 
-1. **装依赖**（只依赖 openpyxl）：
-   ```bash
-   pip3 install -r requirements.txt
-   ```
-2. **申请高德 key**：lbs.amap.com → 控制台 → 创建应用 → 添加 Key → 服务平台选 **「Web 服务」**（这是服务端 key，别提交到公开仓库、别写进前端页面）。
-3. **准备输入模版**：见 `references/input-template.md`（`店名` + `详细地址` + 可选 `拜访频次`）。
+- `跑店排线.xlsx` —— 周一到周五每天走哪些店、顺序、第几周，点店名直接跳高德导航
+- `导入模板_已填.xlsx` —— 导进高德云图 / 小程序，5 种颜色分天
+- `路线.kml` —— 地图路线文件
 
-## 三、命令行跑法（不通过 Claude Code 也能用）
+### 两个注意
+
+- 有搜不到坐标的店时，脚本会停下来给你一个清单：在「状态」列填对地址（或写「先空着」）再继续即可。
+- 换一批店、换一个片区，重跑一次就有新线，方法不用改。
+
+---
+
+## 进阶：命令行直跑（不通过 Claude Code 也能用）
 
 ```bash
 export AMAP_KEY=你的key
@@ -39,13 +59,11 @@ python3 scripts/run.py --input 我的门店.xlsx --city 大连市 --district 普
 python3 scripts/run.py --input 我的门店.xlsx --city 大连市 --district 普兰店区 --outdir output --stage backfill
 ```
 
-## 四、产出三件套（在 `--outdir` 目录）
+输入模版列名 / 别名 / 人工回填怎么填，见 `references/input-template.md`。
 
-- `跑店排线.xlsx` —— 排线表（点店名跳高德导航）+ 每日家数周次矩阵
-- `导入模板_已填.xlsx` —— 导入高德云图 / 小程序，5 色分天
-- `路线.kml` —— 5 个文件夹、每家一个点
+---
 
-## 五、注意事项
+## 注意事项（技术）
 
 - 坐标体系是 **GCJ-02**（高德原生），全程不转 WGS-84。
 - 高德 key 是个人密钥，只在你自己机器上通过环境变量使用；**不要**把它写进模版 Excel、不要 commit、不要发群里。
